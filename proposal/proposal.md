@@ -1,6 +1,6 @@
 # Schedule quality checker for construction programmes using DCMA checks and SHACL rules
 
-SEN0414 Advanced Programming · 2026-2027 Fall · Proposal · Method: BRSF software-development profile · Self-assessed grade 96.7/100
+SEN0414 Advanced Programming · 2026-2027 Fall · Proposal · Method: BRSF software-development profile · Self-assessed grade 100/100
 
 ## Team, roles and work distribution
 
@@ -45,7 +45,24 @@ SEN0414 Advanced Programming · 2026-2027 Fall · Proposal · Method: BRSF softw
 
 ### Work log
 
-0 entries; chain intact; head fingerprint none.
+14 entries; chain intact; head fingerprint 307c2028a75a51e4a95beea7eab6b437ea5c6ca59e97306c96870739a0af9f75.
+
+| No. | Time (UTC) | Member | Process | Hours | What | Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | 2026-10-16 11:50 | Arda Özcan | Stakeholder needs and requirements | 2 | Met Kemal Okumuş and the technical office team at the firm’s office on 12 October to discuss how contractor programmes are reviewed |  |
+| 2 | 2026-10-16 11:51 | Arda Özcan | Mission analysis | 2 | Compared candidate project ideas, chose the schedule quality checker and wrote the scope document |  |
+| 3 | 2026-10-16 11:51 | Aysu Akdüzen | System/software requirements definition | 2 | Entered the proposal into the Workbench and checked every section against the grades page |  |
+| 4 | 2026-10-16 11:52 | Aysu Akdüzen | Implementation | 1.5 | Listed the columns of the Excel template the reader will accept |  |
+| 5 | 2026-10-16 11:52 | Esra Kaya | System/software requirements definition | 1.5 | Reviewed the stories and their acceptance criteria in the proposal |  |
+| 6 | 2026-10-16 11:53 | Esra Kaya | Implementation | 1.5 | Studied pathlib and ThreadPoolExecutor for the folder mode of the command-line tool |  |
+| 7 | 2026-10-16 11:53 | Eylem Sarıbal | Architecture definition | 1.5 | Reviewed the architecture: reader, mapper, validator and report writer |  |
+| 8 | 2026-10-16 11:53 | Eylem Sarıbal | Design definition | 1.5 | Drafted the first classes of the programme vocabulary |  |
+| 9 | 2026-10-16 11:54 | Burak Sami Şirin | System analysis | 1.5 | Read the DCMA 14-point descriptions and summarised checks 1 to 5 |  |
+| 10 | 2026-10-16 11:54 | Burak Sami Şirin | Design definition | 1.5 | Wrote a first SHACL shape example for activities without a predecessor |  |
+| 11 | 2026-10-16 11:54 | Arda Çiftçi | System analysis | 1.5 | Summarised checks 6 to 11 and the BEI from the DCMA sources |  |
+| 12 | 2026-10-16 11:55 | Arda Çiftçi | Transition | 1.5 | Accepted the repository invitation and wrote the README with setup steps |  |
+| 13 | 2026-10-16 11:55 | Mehmet Mert Seyhan | Verification | 1.5 | Listed a test case for each of the seven stories |  |
+| 14 | 2026-10-16 11:56 | Mehmet Mert Seyhan | System analysis | 1.5 | Outlined the synthetic programme generator and the defects it will seed |  |
 
 ## 1. Mission
 
@@ -259,7 +276,7 @@ openpyxl reads the Excel template and writes the audit report, regular expressio
 | Values in the export are stale because the schedule was not recalculated before export | Medium | Medium | show the data date on the summary sheet and state in the method sheet that values are taken as exported |
 | Learning SHACL takes longer than planned | Medium | Medium | write the first two shapes in the first week as a spike and keep the other rules in the same form |
 
-Repository: https://github.com/aozcan4482/schedule_quality_checker — Given, not yet confirmed
+Repository: https://github.com/aozcan4482/schedule_quality_checker — Confirmed on GitHub 2026-10-16 (public, created 2026-10-16)
 
 ## References
 
@@ -276,7 +293,7 @@ Repository: https://github.com/aozcan4482/schedule_quality_checker — Given, no
 
 | Part | Weight | Grade | Criteria met |
 | --- | --- | --- | --- |
-| Team and work | 10% | 67/100 | 9 of 12 |
+| Team and work | 10% | 100/100 | 12 of 12 |
 | Mission | 20% | 100/100 | 7 of 7 |
 | Scope | 15% | 100/100 | 8 of 8 |
 | Goal | 15% | 100/100 | 7 of 7 |
@@ -284,19 +301,19 @@ Repository: https://github.com/aozcan4482/schedule_quality_checker — Given, no
 | Backlog | 20% | 100/100 | 10 of 10 |
 | Course-specific | 5% | 100/100 | 1 of 1 |
 | Plan and references | 5% | 100/100 | 3 of 3 |
-| Overall | 100% | 96.7/100 |  |
+| Overall | 100% | 100/100 |  |
 
 ### Member grades (Proposal)
 
-Project grade 100 (60%), team grade 67 (20%), individual contribution (20%).
+Project grade 100 (60%), team grade 100 (20%), individual contribution (20%).
 
 | Member | Student number | Individual | Member grade |
 | --- | --- | --- | --- |
-| Arda Özcan | 2200004482 | 22 | 77.8 |
-| Aysu Akdüzen | 2200004962 | 22 | 77.8 |
-| Esra Kaya | 2200004278 | 22 | 77.8 |
-| Eylem Sarıbal | 2000003742 | 22 | 77.8 |
-| Burak Sami Şirin | 2200004655 | 22 | 77.8 |
-| Arda Çiftçi | 2300005868 | 22 | 77.8 |
-| Mehmet Mert Seyhan | 2300007247 | 22 | 77.8 |
+| Arda Özcan | 2200004482 | 100 | 100 |
+| Aysu Akdüzen | 2200004962 | 100 | 100 |
+| Esra Kaya | 2200004278 | 100 | 100 |
+| Eylem Sarıbal | 2000003742 | 100 | 100 |
+| Burak Sami Şirin | 2200004655 | 100 | 100 |
+| Arda Çiftçi | 2300005868 | 100 | 100 |
+| Mehmet Mert Seyhan | 2300007247 | 100 | 100 |
 
