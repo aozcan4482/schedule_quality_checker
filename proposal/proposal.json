@@ -1,0 +1,679 @@
+{
+ "tool": "proposal_tool",
+ "version": "4.11.0",
+ "stage": "proposal",
+ "stageLabel": "Proposal",
+ "stageFills": "The plan: who the system is for, what it will do, how it will be built and checked, and who does what. Nothing is implemented yet: the Delivery and evidence part stays empty.",
+ "saved": "2026-10-16T11:39:40.099Z",
+ "proposal": {
+  "course": "SEN0414",
+  "stage": "proposal",
+  "semester": "2026-2027 Fall",
+  "title": "Schedule quality checker for construction programmes using DCMA checks and SHACL rules",
+  "team": [
+   {
+    "name": "Arda Özcan",
+    "no": "2200004482",
+    "email": "2200004482@stu.iku.edu.tr",
+    "share": "16",
+    "admin": [
+     "A_TeamLead",
+     "A_CustomerLiaison"
+    ],
+    "dev": [
+     "R_Analyst",
+     "R_Backend"
+    ]
+   },
+   {
+    "name": "Aysu Akdüzen",
+    "no": "2200004962",
+    "email": "2200004962@stu.iku.edu.tr",
+    "share": "14",
+    "admin": [
+     "A_DocLead"
+    ],
+    "dev": [
+     "R_Backend",
+     "R_Data"
+    ]
+   },
+   {
+    "name": "Esra Kaya",
+    "no": "2200004278",
+    "email": "2200004278@stu.iku.edu.tr",
+    "share": "14",
+    "admin": [
+     "A_LogSteward"
+    ],
+    "dev": [
+     "R_Backend"
+    ]
+   },
+   {
+    "name": "Eylem Sarıbal",
+    "no": "2000003742",
+    "email": "2000003742@stu.iku.edu.tr",
+    "share": "14",
+    "admin": [
+     "A_QualityLead"
+    ],
+    "dev": [
+     "R_Ontologist",
+     "R_Architect"
+    ]
+   },
+   {
+    "name": "Burak Sami Şirin",
+    "no": "2200004655",
+    "email": "2200004655@stu.iku.edu.tr",
+    "share": "14",
+    "admin": [
+     "A_Facilitator"
+    ],
+    "dev": [
+     "R_Ontologist"
+    ]
+   },
+   {
+    "name": "Arda Çiftçi",
+    "no": "2300005868",
+    "email": "2300005868@stu.iku.edu.tr",
+    "share": "14",
+    "admin": [
+     "A_ReleaseManager"
+    ],
+    "dev": [
+     "R_Ontologist",
+     "R_Backend"
+    ]
+   },
+   {
+    "name": "Mehmet Mert Seyhan",
+    "no": "2300007247",
+    "email": "2300007247@stu.iku.edu.tr",
+    "share": "14",
+    "admin": [
+     "A_QualityLead"
+    ],
+    "dev": [
+     "R_Tester"
+    ]
+   }
+  ],
+  "leads": {
+   "P01": "Arda Özcan",
+   "P02": "Arda Özcan",
+   "P03": "Aysu Akdüzen",
+   "P04": "Eylem Sarıbal",
+   "P05": "Eylem Sarıbal",
+   "P06": "Burak Sami Şirin",
+   "P07": "Esra Kaya",
+   "P08": "Arda Çiftçi",
+   "P09": "Mehmet Mert Seyhan",
+   "P10": "Arda Çiftçi",
+   "P11": "Arda Özcan",
+   "P12": "Esra Kaya",
+   "P13": "Arda Çiftçi",
+   "P14": "Mehmet Mert Seyhan"
+  },
+  "modules": [
+   {
+    "name": "Template reader",
+    "kind": "module",
+    "what": "Reads the three-sheet Excel template with openpyxl, checks the required columns and cleans values with regular expressions",
+    "epic": "E1",
+    "owner": "Aysu Akdüzen",
+    "second": "Esra Kaya"
+   },
+   {
+    "name": "Programme vocabulary and RDF mapping",
+    "kind": "module",
+    "what": "The small vocabulary for project, activity and relationship, and the mapping from template rows to RDF",
+    "epic": "E1",
+    "owner": "Eylem Sarıbal",
+    "second": "Burak Sami Şirin"
+   },
+   {
+    "name": "Logic and constraint shapes (checks 1-5)",
+    "kind": "module",
+    "what": "SHACL shapes for missing logic, leads, lags, relationship types and hard constraints, with their ratios",
+    "epic": "E2",
+    "owner": "Burak Sami Şirin",
+    "second": "Eylem Sarıbal"
+   },
+   {
+    "name": "Float, date and resource shapes (checks 6-11, BEI)",
+    "kind": "module",
+    "what": "SHACL shapes for high and negative float, long durations, invalid dates, resources and missed activities, and the SPARQL query for the baseline execution index",
+    "epic": "E2",
+    "owner": "Arda Çiftçi",
+    "second": "Burak Sami Şirin"
+   },
+   {
+    "name": "Excel audit report",
+    "kind": "feature",
+    "what": "The summary, findings and method sheets written with openpyxl, in the form the planning team asked for",
+    "epic": "E3",
+    "owner": "Arda Özcan",
+    "second": "Aysu Akdüzen"
+   },
+   {
+    "name": "Command line and folder mode",
+    "kind": "feature",
+    "what": "The command that checks one file or a whole folder, with pathlib and a thread pool, and the folder summary table",
+    "epic": "E3",
+    "owner": "Esra Kaya",
+    "second": "Arda Özcan"
+   },
+   {
+    "name": "Synthetic programmes and tests",
+    "kind": "module",
+    "what": "The generator of synthetic programmes with seeded defects and the pytest case for every story",
+    "epic": "E2",
+    "owner": "Mehmet Mert Seyhan",
+    "second": "Arda Çiftçi"
+   }
+  ],
+  "repo": "https://github.com/aozcan4482/schedule_quality_checker",
+  "worklog": [],
+  "customers": [
+   {
+    "name": "Construction project management firm, planning and project controls team",
+    "contact": "Entegre Project Management:\nKemal Okumuş, M.Sc. Civil Engineer, General Manager\nYaren Yanbel, Technical Office Engineer\nEfe Mert İşgör, Civil Engineer\nAyşe Yıldız Architect",
+    "reached": "Face-to-face meeting at the firm's office on 12 October 2026",
+    "relation": "client",
+    "gets": "A repeatable, documented quality check of every contractor programme in minutes, with a finding list it can send back to the contractor."
+   }
+  ],
+  "endUsers": [
+   {
+    "group": "Planning engineer",
+    "who": "planning engineers of the project management firm who review contractor programmes",
+    "task": "exports the contractor's programme to the Excel template, runs the checker and reviews the findings before replying to the contractor",
+    "frequency": "monthly",
+    "device": "office laptop"
+   },
+   {
+    "group": "Project manager",
+    "who": "project managers who accept or return a contractor's programme on behalf of the employer",
+    "task": "reads the summary sheet of the report to decide whether the programme can be accepted",
+    "frequency": "monthly",
+    "device": "office laptop"
+   }
+  ],
+  "problem": "On every project the contractor submits an updated programme, a Primavera P6 or MS Project schedule, and a planning engineer of the project management firm has to review it before the project manager can accept it on the employer's behalf. Today this review is done by eye: the engineer filters the activity table, looks for activities without predecessors or successors, hard constraints, negative float and unexplained lags, and writes the comments into an e-mail or a spreadsheet by hand. The DCMA 14-point assessment is the common yardstick for schedule quality: for example, at most 5% of incomplete activities may miss a predecessor or successor, no link may have a negative lag, and at most 5% of activities may carry more than 44 working days of total float. Counting these by hand across a large programme is slow and error-prone, and two engineers rarely count the same way; even the commercial tools that automate the checks are not certified and count activities differently. When a defective programme is accepted, its critical path is wrong, and every later delay or extension-of-time discussion rests on a schedule nobody fully checked.",
+  "mission": "Help the planning engineers of a construction project management firm review contractor programmes faster and more consistently. The project delivers a Python tool that reads a programme exported to Excel, checks it against twelve of the DCMA 14-point schedule quality checks written as SHACL rules, and produces an Excel report that lists every finding by activity. With this report, the planning engineer can send precise, rule-based comments to the contractor, and the project manager can accept a programme knowing that its logic, float and dates have been checked the same way every time.",
+  "missionOrigin": "IOrigin_Derived",
+  "outcome": "A planning engineer runs one command on the contractor's exported programme and, within a minute, receives an Excel report with a pass or fail for twelve DCMA checks and a list of every offending activity, ready to send back to the contractor, instead of filtering the schedule by hand.",
+  "areas": [
+   {
+    "area": "Template reading",
+    "where": "reader/",
+    "measure": "0 programmes read automatically today"
+   },
+   {
+    "area": "Programme graph and rules",
+    "where": "graph/ and shapes/",
+    "measure": "0 checks written as rules today"
+   },
+   {
+    "area": "Report and command line",
+    "where": "report/ and cli/",
+    "measure": "no generated report today"
+   }
+  ],
+  "deliverables": [
+   {
+    "text": "Excel template and reader with column checks and regular-expression value clean-up",
+    "area": "A1",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "Synthetic programme generator with seeded defects and automated tests",
+    "area": "A1",
+    "layer": "Layer_Work",
+    "kind": "Kind_NonFunctional"
+   },
+   {
+    "text": "Programme vocabulary and Excel-to-RDF mapping",
+    "area": "A2",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "SHACL shapes for eleven checks and SPARQL queries for the ratios and the baseline execution index",
+    "area": "A2",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "A programme of 1,000 activities is checked in under 30 seconds",
+    "area": "A2",
+    "layer": "Layer_Product",
+    "kind": "Kind_NonFunctional"
+   },
+   {
+    "text": "Excel audit report with summary, findings and method sheets",
+    "area": "A3",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "Command-line tool that checks one file or a whole folder",
+    "area": "A3",
+    "layer": "Layer_Product",
+    "kind": "Kind_Functional"
+   },
+   {
+    "text": "Every finding traces back to its rule and to its activity or link",
+    "area": "A3",
+    "layer": "Layer_Product",
+    "kind": "Kind_NonFunctional"
+   }
+  ],
+  "exclusions": [
+   {
+    "what": "Recalculating the schedule (CPM), the critical path test and the critical path length index",
+    "why": "they need the planning software's calculation engine; the values in the export are enough for the other twelve checks"
+   },
+   {
+    "what": "Reading XER, MPP or MS Project XML files directly",
+    "why": "each format needs its own parser, and both P6 and MS Project can export the activity table to Excel"
+   },
+   {
+    "what": "Revision comparison, trend charts, a web interface and a database",
+    "why": "checking one file at a time meets the need, and the tool is run by one engineer on one computer"
+   },
+   {
+    "what": "Correcting the programme or writing back to it",
+    "why": "the reviewer must stay independent; corrections are the contractor's job"
+   },
+   {
+    "what": "Delay analysis and extension-of-time assessment",
+    "why": "it needs expert and contractual judgement beyond rule checks"
+   },
+   {
+    "what": "Real project programmes in the repository",
+    "why": "programmes are confidential; the repository holds synthetic files only"
+   }
+  ],
+  "entities": [
+   {
+    "entity": "Project",
+    "def": "the programme being checked, with its name and data date",
+    "create": "no",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Activity",
+    "def": "a work item with its type, status, duration, dates, total float, constraint and resource",
+    "create": "no",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Relationship",
+    "def": "a predecessor-successor link between two activities, with its type (FS, SS, FF, SF) and lag",
+    "create": "no",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Check",
+    "def": "one DCMA rule in the rules file, with its threshold and counting rule",
+    "create": "no",
+    "use": "yes",
+    "end": "no"
+   },
+   {
+    "entity": "Finding",
+    "def": "the result of one check for one activity or link, with the measured value and a message",
+    "create": "yes",
+    "use": "yes",
+    "end": "no"
+   }
+  ],
+  "projectKinds": [
+   "PK_ShapeService"
+  ],
+  "tech": [
+   "RDFLibPython",
+   "PySHACLLib",
+   "SHACLCore",
+   "SPARQLFamily"
+  ],
+  "techWhy": "RDFLib turns the rows of the Excel template into RDF statements about the project, its activities and the relationships between them, so that each finding can point at the activity or link it concerns. SHACL shapes, run by pySHACL, hold the eleven rule-based DCMA checks; each threshold is a value in the shapes file, so a planning engineer can change it without touching code. SPARQL queries count the ratios each check is judged by and compute the baseline execution index for the report's summary sheet.",
+  "goals": [
+   {
+    "goal": "Defective programmes are caught before they are accepted",
+    "facing": "Facing_Mission",
+    "area": "A2",
+    "why": "this is the change the planning team needs"
+   },
+   {
+    "goal": "Every template column the checks need is read reliably",
+    "facing": "Facing_Scope",
+    "area": "A1",
+    "why": "a column read wrongly would hide or invent findings"
+   },
+   {
+    "goal": "The planning engineer receives a report ready to send to the contractor",
+    "facing": "Facing_Scope",
+    "area": "A3",
+    "why": "the check is only useful if its result reaches the contractor"
+   },
+   {
+    "goal": "No work is spent outside the three scope areas",
+    "facing": "Facing_Containment",
+    "area": "A2",
+    "why": "recalculation, file parsers and a web interface were left out to keep the project small"
+   }
+  ],
+  "spec": "The tool reads a programme from the three-sheet Excel template (Project, Activities, Relationships), refuses a file whose required columns are missing and names them, and converts each value, accepting forms such as 12, 12d or 12 gün. It maps the programme to an RDF graph and validates it with SHACL shapes for checks 1 to 11 of the DCMA 14-point assessment; SPARQL queries compute each check's ratio and the baseline execution index. It writes an Excel report with a summary sheet (value, threshold and pass, fail or not applicable per check), a findings sheet with one row per finding, and a method sheet with the counting rules. Given a folder, it checks every file in parallel and adds one summary table. It never recalculates the schedule and never sends data outside the computer.",
+  "scenarios": [
+   {
+    "kind": "Scen_Nominal",
+    "text": "Given a defect-free synthetic programme of 200 activities, when the planning engineer runs the checker, then all twelve checks pass and the findings sheet is empty"
+   },
+   {
+    "kind": "Scen_Rejection",
+    "text": "Given a template whose Relationships sheet lacks the predecessor column, when the checker reads it, then it stops, names the missing column and writes no report"
+   },
+   {
+    "kind": "Scen_Boundary",
+    "text": "Given an activity with exactly 44 working days of total float, when the checker runs, then check 6 reports no finding for it, and at 45 days it does"
+   },
+   {
+    "kind": "Scen_Absent",
+    "text": "Given a programme with an empty baseline finish column, when the checker runs, then checks 11 and 14 are reported as not applicable rather than passed"
+   }
+  ],
+  "useCase": "Planning engineer: export the programme to the template, check one file, check a folder, change a threshold. Project manager: read the summary sheet, accept or return the programme.",
+  "objectives": [
+   {
+    "objective": "Seeded defects detected",
+    "goal": "G1",
+    "mkind": "Meas_Counted",
+    "query": "share of the defects seeded into the synthetic test programmes that appear in the findings sheet",
+    "baseline": "0%",
+    "target": "95%",
+    "dir": "Dir_Increase"
+   },
+   {
+    "objective": "Template columns read without manual editing",
+    "goal": "G2",
+    "mkind": "Meas_Counted",
+    "query": "required template columns the reader accepts in the sample files, out of 19",
+    "baseline": "0",
+    "target": "19",
+    "dir": "Dir_Increase"
+   },
+   {
+    "objective": "Report sheets produced automatically",
+    "goal": "G3",
+    "mkind": "Meas_Counted",
+    "query": "sheets of the audit report (summary, findings, method) written by the tool without manual editing",
+    "baseline": "0",
+    "target": "3",
+    "dir": "Dir_Increase"
+   },
+   {
+    "objective": "Commits outside the scope areas",
+    "goal": "G4",
+    "mkind": "Meas_Derived",
+    "query": "git log query counting commits that change files outside reader/, graph/, shapes/, report/, cli/ and tests/",
+    "baseline": "0",
+    "target": "0",
+    "dir": "Dir_Hold"
+   }
+  ],
+  "activity": "The planning engineer exports the contractor's programme to the template and starts the checker on a file or a folder. For a folder, each file is processed in its own thread. The reader opens the workbook; if a required sheet or column is missing it stops and reports it. Otherwise it cleans each value, and an unreadable cell is reported with its sheet and row. The rows are mapped to an RDF graph. pySHACL validates the graph against the shapes and SPARQL queries compute the ratios and the baseline execution index; if the baseline column is empty, checks 11 and 14 are marked not applicable. The report writer produces the Excel report, and for a folder the summary table.",
+  "sequence": "The planning engineer calls the command-line tool with a path. The tool asks the Reader for the three sheets and receives rows or a list of missing columns. It sends the rows to the Mapper, which returns an RDF graph. It sends the graph and the shapes file to the Validator (pySHACL), which returns the validation report. It sends the graph to the Metrics module, which runs the SPARQL queries and returns one value per check. It passes the findings and values to the ReportWriter, which writes the Excel file and returns its path, and the tool prints the path for the engineer.",
+  "initiativeKind": "Kind_InitialDevelopment",
+  "epics": [
+   {
+    "epic": "Read the programme reliably",
+    "objective": "O2"
+   },
+   {
+    "epic": "Check the programme against the DCMA rules",
+    "objective": "O1"
+   },
+   {
+    "epic": "Report the findings to the planning engineer",
+    "objective": "O3"
+   }
+  ],
+  "stories": [
+   {
+    "epic": "E1",
+    "role": "Planning engineer",
+    "want": "to load a programme exported to the Excel template without editing it",
+    "so": "I can check it as soon as the contractor sends it",
+    "ac": "Given a template with all required columns When I run the checker on it Then every activity and relationship is read and their counts appear in the report",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Data",
+    "bv": "8",
+    "tc": "6",
+    "rr": "5",
+    "js": "5"
+   },
+   {
+    "epic": "E1",
+    "role": "Planning engineer",
+    "want": "a clear message when a required column is missing or a cell cannot be read",
+    "so": "I fix the export instead of trusting a wrong result",
+    "ac": "Given a template without the predecessor column When I run the checker Then it stops, names the missing column and writes no report",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Interface",
+    "bv": "6",
+    "tc": "4",
+    "rr": "7",
+    "js": "2"
+   },
+   {
+    "epic": "E2",
+    "role": "Planning engineer",
+    "want": "the logic checks (missing links, leads, lags, relationship types) applied to every activity",
+    "so": "I see where the network is broken",
+    "ac": "Given a programme with one activity missing its successor and one link with a negative lag When I run the checker Then checks 1 and 2 fail and list exactly those two items",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Data",
+    "bv": "9",
+    "tc": "7",
+    "rr": "6",
+    "js": "5"
+   },
+   {
+    "epic": "E2",
+    "role": "Planning engineer",
+    "want": "the float, duration, constraint, date and resource checks applied",
+    "so": "I see the activities that make the critical path unreliable",
+    "ac": "Given a programme with an activity of 61 days total float and one with a Must Finish On constraint When I run the checker Then checks 6 and 5 list those activities with their values",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Data",
+    "bv": "8",
+    "tc": "6",
+    "rr": "5",
+    "js": "5"
+   },
+   {
+    "epic": "E2",
+    "role": "Planning engineer",
+    "want": "to change a threshold in the rules file",
+    "so": "the checks follow our firm's own limits",
+    "ac": "Given the high-float threshold changed from 44 to 30 days When I run the checker on a programme with an activity of 35 days float Then check 6 lists that activity",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Data",
+    "bv": "5",
+    "tc": "3",
+    "rr": "4",
+    "js": "3"
+   },
+   {
+    "epic": "E3",
+    "role": "Project manager",
+    "want": "a summary sheet with a pass or fail per check",
+    "so": "I can decide whether to accept the programme",
+    "ac": "Given a checked programme When I open the report Then the summary sheet shows each check with its value, threshold and pass, fail or not applicable",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Interaction",
+    "bv": "8",
+    "tc": "6",
+    "rr": "4",
+    "js": "3"
+   },
+   {
+    "epic": "E3",
+    "role": "Planning engineer",
+    "want": "to check every programme in a folder at once",
+    "so": "I can review all projects' updates in one run",
+    "ac": "Given a folder with three templates When I run the checker on the folder Then each file gets its own report and one summary table lists all three",
+    "cat": "Cat_NewCapability",
+    "concern": "Concern_Interaction",
+    "bv": "5",
+    "tc": "4",
+    "rr": "3",
+    "js": "4"
+   }
+  ],
+  "dod": [
+   {
+    "criterion": "All tests pass in continuous integration",
+    "check": "GitHub Actions run on every push"
+   },
+   {
+    "criterion": "The story's acceptance criterion has a passing test",
+    "check": "a pytest test named after the story id"
+   },
+   {
+    "criterion": "The sample graph conforms to the shapes and the report opens in Excel",
+    "check": "pySHACL report in the test log and a sample report attached to the release"
+   }
+  ],
+  "classModel": "Project has a name and a data date and has many Activities. Activity has an id, name, type (task, milestone, level of effort, summary), status, duration, start, finish, actual start, actual finish, total float, constraint type, baseline finish and resource. Relationship links a predecessor Activity to a successor Activity and has a type (FS, SS, FF, SF) and a lag. Check has a number, a name, a threshold and a counting rule. Finding links one Check to one Activity or Relationship and has a measured value and a message. AuditReport belongs to one Project and holds a result per Check and many Findings.",
+  "tests": [
+   {
+    "story": "S1",
+    "case": "read a 200-activity synthetic template and compare the counts with the generator's",
+    "data": "synthetic template from the test-data generator"
+   },
+   {
+    "story": "S2",
+    "case": "remove the predecessor column and expect a stop that names it",
+    "data": "synthetic template with one column removed"
+   },
+   {
+    "story": "S3",
+    "case": "seed one missing successor and one negative lag and expect exactly two findings in checks 1 and 2",
+    "data": "synthetic programme with two seeded defects"
+   },
+   {
+    "story": "S4",
+    "case": "seed 61 days of float and a Must Finish On constraint and expect findings in checks 6 and 5",
+    "data": "synthetic programme with two seeded defects"
+   },
+   {
+    "story": "S5",
+    "case": "lower the float threshold to 30 days and expect a 35-day activity to be listed",
+    "data": "rules file with a changed threshold and a small programme"
+   },
+   {
+    "story": "S6",
+    "case": "compare the summary sheet with the expected pass, fail or not applicable per check",
+    "data": "synthetic programme with known results"
+   },
+   {
+    "story": "S7",
+    "case": "run on a folder of three templates and expect three reports and one summary table",
+    "data": "three small synthetic templates"
+   }
+  ],
+  "model_Data": "Class diagram: Project, Activity, Relationship, Check, Finding and AuditReport as in the class model. SHACL node shapes target Activity and Relationship, one shape per check, each with its threshold as a parameter and a message for the report.",
+  "model_Interface": "Component diagram: the CLI calls the Reader (openpyxl, re), which feeds the Mapper (RDFLib); the Validator (pySHACL) reads the graph and the shapes file; Metrics runs the SPARQL queries; the ReportWriter (openpyxl) writes the Excel report. The file contracts are the three-sheet input template and the three-sheet report.",
+  "model_Interaction": "Sequence diagram: the planning engineer runs the command with a file or folder path; the tool prints progress per file and then the report path, or the missing column and stops; the project manager opens the report and reads the summary sheet.",
+  "libraries": "openpyxl reads the Excel template and writes the audit report, regular expressions clean values such as 12d or 12 gün and check activity id patterns, pathlib walks a folder of programmes and stores the reports, and a thread pool checks several files in parallel. RDFLib builds the graph, pySHACL validates it against the shapes and pytest runs the tests. The project applies the course's spreadsheet, regular expressions, files and paths, and multithreading chapters.",
+  "milestones": [
+   {
+    "date": "2026-10-30",
+    "deliverable": "Proposal submitted; Excel template and synthetic programme generator agreed",
+    "owner": "Arda Özcan"
+   },
+   {
+    "date": "2026-11-13",
+    "deliverable": "Template reader and Excel-to-RDF mapping with tests",
+    "owner": "Aysu Akdüzen"
+   },
+   {
+    "date": "2026-11-27",
+    "deliverable": "SHACL shapes and SPARQL queries for the twelve checks",
+    "owner": "Burak Sami Şirin"
+   },
+   {
+    "date": "2026-12-11",
+    "deliverable": "Excel report, folder mode and validation with the planning team",
+    "owner": "Arda Özcan"
+   },
+   {
+    "date": "2026-12-18",
+    "deliverable": "Tagged release v1.0 with test report",
+    "owner": "Arda Çiftçi"
+   }
+  ],
+  "risks": [
+   {
+    "risk": "The firm's planners cannot export programmes in the template's columns",
+    "likelihood": "medium",
+    "impact": "high",
+    "mitigation": "agree the template with the planning team in the first week and accept common column-name variants"
+   },
+   {
+    "risk": "Real programmes are confidential and cannot be used for testing",
+    "likelihood": "high",
+    "impact": "medium",
+    "mitigation": "build the synthetic programme generator first; use one anonymised programme only for validation, never in the repository"
+   },
+   {
+    "risk": "Values in the export are stale because the schedule was not recalculated before export",
+    "likelihood": "medium",
+    "impact": "medium",
+    "mitigation": "show the data date on the summary sheet and state in the method sheet that values are taken as exported"
+   },
+   {
+    "risk": "Learning SHACL takes longer than planned",
+    "likelihood": "medium",
+    "impact": "medium",
+    "mitigation": "write the first two shapes in the first week as a spike and keep the other rules in the same form"
+   }
+  ],
+  "refs": [
+   {
+    "ref": "Mosaic Project Services. WP1088: The DCMA 14-Point Schedule Assessment. https://mail.mosaicprojects.com.au/WhitePapers/WP1088_DCMA-14-Point.pdf"
+   },
+   {
+    "ref": "Deltek. Acumen 8.11: DCMA 14-Point Assessment Metric Descriptions. https://help.deltek.com/Product/Acumen/8.11/GA/DCMA%2014%20Point%20Assessment%20Metric%20Descriptions.html"
+   },
+   {
+    "ref": "W3C (2017). Shapes Constraint Language (SHACL). W3C Recommendation. https://www.w3.org/TR/shacl/"
+   },
+   {
+    "ref": "W3C (2013). SPARQL 1.1 Query Language. W3C Recommendation. https://www.w3.org/TR/sparql11-query/"
+   },
+   {
+    "ref": "RDFLib documentation. https://rdflib.readthedocs.io"
+   },
+   {
+    "ref": "pySHACL. https://github.com/RDFLib/pySHACL"
+   },
+   {
+    "ref": "Sweigart, A. (2025). Automate the Boring Stuff with Python, 3rd ed. No Starch Press."
+   },
+   {
+    "ref": "Hagedorn, P., Cassandro, J., Sigalov, K., Mirarchi, C., Pavan, A., Koenig, M. (2025). Cost and resource ontologies for construction scheduling. LDAC 2025, Porto."
+   }
+  ]
+ }
+}
