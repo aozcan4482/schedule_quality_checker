@@ -1,0 +1,19 @@
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sched: <http://example.org/schedule#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+sched:Check6_HighFloatShape a sh:NodeShape ;
+    sh:targetClass sched:IncompleteActivity ;
+    sh:property [
+        sh:path sched:totalFloat ;
+        sh:maxInclusive 44 ;
+        sh:message "Check 6 (High Float): Incomplete activity has total float greater than 44 working days." ;
+    ] .
+
+sched:Check7_NegativeFloatShape a sh:NodeShape ;
+    sh:targetClass sched:IncompleteActivity ;
+    sh:property [
+        sh:path sched:totalFloat ;
+        sh:minInclusive 0 ;
+        sh:message "Check 7 (Negative Float): Activity has negative total float (< 0 working days)." ;
+    ] .
