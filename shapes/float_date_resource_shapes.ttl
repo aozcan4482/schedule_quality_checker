@@ -7,7 +7,7 @@ sched:Check6_HighFloatShape a sh:NodeShape ;
     sh:property [
         sh:path sched:totalFloat ;
         sh:maxInclusive 44 ;
-        sh:message "Check 6 (High Float): Incomplete activity has total float greater than 44 working days." ;
+        sh:message "Check 6 (High Float): Incomplete activity has total float greater than the allowed working days threshold." ;
     ] .
 
 sched:Check7_NegativeFloatShape a sh:NodeShape ;
@@ -15,5 +15,22 @@ sched:Check7_NegativeFloatShape a sh:NodeShape ;
     sh:property [
         sh:path sched:totalFloat ;
         sh:minInclusive 0 ;
-        sh:message "Check 7 (Negative Float): Activity has negative total float (< 0 working days)." ;
+        sh:message "Check 7 (Negative Float): Incomplete activity has negative total float (< 0 working days)." ;
+    ] .
+
+sched:Check8_HighDurationShape a sh:NodeShape ;
+    sh:targetClass sched:IncompleteActivity ;
+    sh:property [
+        sh:path sched:duration ;
+        sh:maxInclusive 44 ;
+        sh:message "Check 8 (High Duration): Incomplete activity has duration greater than 44 working days." ;
+    ] .
+
+sched:Check10_ResourceShape a sh:NodeShape ;
+    sh:targetClass sched:PositiveDurationActivity ;
+    sh:property [
+        sh:path sched:resource ;
+        sh:minCount 1 ;
+        sh:minLength 1 ;
+        sh:message "Check 10 (Resources): Incomplete activity with positive duration is missing a resource assignment." ;
     ] .
