@@ -1,0 +1,187 @@
+# =====================================================================
+#  DCMA 14-Point Assessment — kontrol 1–5 (Logic and constraint shapes)
+#  Sorumlu: Burak Sami Şirin · İkinci kişi: Eylem Sarıbal
+# =====================================================================
+#
+#  Bu dosya ne yapar?
+#    Her kontrol, kurala UYMAYAN her aktiviteyi veya bağlantıyı tek tek
+#    işaretler (pySHACL raporunda bir "ihlal" = Findings sayfasında bir satır).
+#    Oran hesabı (örn. "en fazla %5") burada YAPILMAZ; o iş ileride SPARQL
+#    sorgularıyla yapılacak.
+#
+#  Kim sayılır? (DCMA 2012 / Mosaic WP1088)
+#    - Aktivite kontrolleri (1, 5): türü "Task" olan ve tamamlanmamış aktiviteler.
+#      Milestone, LOE, Summary ve tamamlanmış aktiviteler sayılmaz.
+#    - Bağlantı kontrolleri (2, 3, 4): ardılı yukarıdaki gibi sayılan bir task
+#      olan bağlantılar.
+#
+#  Neden SPARQL hedefi (sh:SPARQLTarget)?
+#    sh:targetClass bir sınıfın TÜM üyelerini seçer; filtre koyamaz. Bize
+#    "tür = Task VE durum != Completed" filtresi lazım, onu küçük bir SPARQL
+#    sorgusuyla yazıyoruz. Bu özellik SHACL Advanced Features'ta, yani
+#    pySHACL'ı MUTLAKA advanced modda çalıştırmak gerekir:
+#        pyshacl -a -s shapes/dcma_1_5.ttl <veri.ttl>
+#    -a olmadan hedefler sessizce boş kalır ve her şey "Conforms: True" çıkar!
+#
+#  Değerler büyük/küçük harfe duyarsız karşılaştırılır (LCASE), çünkü
+#  şablondan "Task", "task", "Completed", "Complete" gibi farklı yazımlar gelebilir.
+# =====================================================================
+
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix sched: <http://example.org/schedule#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# SPARQL sorgularının içinde "sched:" kısaltmasını kullanabilmek için
+# prefix'i burada tanıtıyoruz. Her SPARQL hedefi sh:prefixes ile buna bağlanır.
+sched:DcmaPrefixes
+    sh:declare [
+        sh:prefix    "sched" ;
+        sh:namespace "http://example.org/schedule#"^^xsd:anyURI ;
+    ] .
+
+
+# ---------------------------------------------------------------------
+#  Kontrol 1 — Logic
+#  Kural : Sayılan her task'ın en az bir öncülü VE en az bir ardılı olmalı.
+#  Eşik  : hatalı task / sayılan task  <= %5   (oran SPARQL'da hesaplanacak)
+#
+#  Aktivite kendi öncülünü/ardılını bilmez; bu bilgi bağlantılarda durur.
+#  Bu yüzden TERS YOL kullanıyoruz:
+#    "öncülü var mı?"  = bu aktiviteyi successor olarak gösteren bağlantı var mı?
+#                        -> [ sh:inversePath sched:successor ]
+#    "ardılı var mı?"  = bu aktiviteyi predecessor olarak gösteren bağlantı var mı?
+#                        -> [ sh:inversePath sched:predecessor ]
+# ---------------------------------------------------------------------
+sched:Check1_LogicShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes sched:DcmaPrefixes ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a sched:Activity ;
+                      sched:activityType ?type ;
+                      sched:status ?status .
+                FILTER (LCASE(STR(?type)) = "task")
+                FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+            }
+        """ ;
+    ] ;
+    sh:property sched:Check1_MissingPredecessor , sched:Check1_MissingSuccessor .
+
+# Property shape'lere isim (IRI) veriyoruz: raporda "sh:sourceShape" olarak
+# bu isim görünür, böylece bulgunun hangi kontrolden geldiğini anlarız.
+sched:Check1_MissingPredecessor a sh:PropertyShape ;
+    sh:path [ sh:inversePath sched:successor ] ;
+    sh:minCount 1 ;
+    sh:message "Check 1 (Logic): incomplete task has no predecessor." .
+
+sched:Check1_MissingSuccessor a sh:PropertyShape ;
+    sh:path [ sh:inversePath sched:predecessor ] ;
+    sh:minCount 1 ;
+    sh:message "Check 1 (Logic): incomplete task has no successor." .
+
+
+# ---------------------------------------------------------------------
+#  Kontrol 2, 3, 4 ortak hedefi: ardılı sayılan bir task olan bağlantılar.
+#  Aynı SPARQL sorgusu üç kez yazılmasın diye hedefi bir kez tanımlayıp
+#  (sched:CountedRelationshipTarget) üç shape'te de kullanıyoruz.
+# ---------------------------------------------------------------------
+sched:CountedRelationshipTarget a sh:SPARQLTarget ;
+    sh:prefixes sched:DcmaPrefixes ;
+    sh:select """
+        SELECT ?this WHERE {
+            ?this a sched:Relationship ;
+                  sched:successor ?succ .
+            ?succ sched:activityType ?type ;
+                  sched:status ?status .
+            FILTER (LCASE(STR(?type)) = "task")
+            FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+        }
+    """ .
+
+
+# ---------------------------------------------------------------------
+#  Kontrol 2 — Leads (negatif lag)
+#  Kural : Lag negatif olamaz  ->  lag >= 0
+#  Eşik  : 0 (tek bir lead bile kontrolü fail ettirir)
+# ---------------------------------------------------------------------
+sched:Check2_LeadsShape a sh:NodeShape ;
+    sh:target sched:CountedRelationshipTarget ;
+    sh:property sched:Check2_NegativeLag .
+
+sched:Check2_NegativeLag a sh:PropertyShape ;
+    sh:path sched:lag ;
+    sh:minInclusive 0 ;
+    sh:message "Check 2 (Leads): relationship has a negative lag (lead)." .
+
+
+# ---------------------------------------------------------------------
+#  Kontrol 3 — Lags (pozitif lag)
+#  Kural : Lag pozitif olmamalı  ->  lag <= 0
+#  Eşik  : lag'li bağlantı / sayılan bağlantı  <= %5
+#  Not   : Negatif lag kontrol 2'nin konusu; burada sadece > 0 olanlar çıkar.
+# ---------------------------------------------------------------------
+sched:Check3_LagsShape a sh:NodeShape ;
+    sh:target sched:CountedRelationshipTarget ;
+    sh:property sched:Check3_PositiveLag .
+
+sched:Check3_PositiveLag a sh:PropertyShape ;
+    sh:path sched:lag ;
+    sh:maxInclusive 0 ;
+    sh:message "Check 3 (Lags): relationship has a positive lag." .
+
+
+# ---------------------------------------------------------------------
+#  Kontrol 4 — Relationship types
+#  Kural : FS dışındaki her bağlantı (SS, FF, SF) bulgu olarak listelenir.
+#  Eşik  : FS bağlantı / sayılan bağlantı  >= %90
+#  sh:in ( "FS" ) = değer sadece "FS" olabilir.
+# ---------------------------------------------------------------------
+sched:Check4_RelationshipTypesShape a sh:NodeShape ;
+    sh:target sched:CountedRelationshipTarget ;
+    sh:property sched:Check4_NonFinishToStart .
+
+sched:Check4_NonFinishToStart a sh:PropertyShape ;
+    sh:path sched:relationshipType ;
+    sh:in ( "FS" ) ;
+    sh:message "Check 4 (Relationship types): relationship is not Finish-to-Start." .
+
+
+# ---------------------------------------------------------------------
+#  Kontrol 5 — Hard constraints
+#  Kural : Sayılan task'ta sert (iki yönlü) kısıt olmamalı.
+#  Eşik  : kısıtlı task / sayılan task  <= %5
+#  Sert kısıt listesi (MS Project + P6 adları). Start/Finish No Earlier Than
+#  gibi yumuşak kısıtlar listede YOK, onlar serbest.
+#  sh:not [ sh:in (...) ] = değer bu listedeki hiçbir şey olamaz.
+#  Değerler şablondan tam bu yazımla gelmeli -> Aysu ile netleşecek.
+# ---------------------------------------------------------------------
+sched:Check5_HardConstraintsShape a sh:NodeShape ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes sched:DcmaPrefixes ;
+        sh:select """
+            SELECT ?this WHERE {
+                ?this a sched:Activity ;
+                      sched:activityType ?type ;
+                      sched:status ?status .
+                FILTER (LCASE(STR(?type)) = "task")
+                FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+            }
+        """ ;
+    ] ;
+    sh:property sched:Check5_HardConstraint .
+
+sched:Check5_HardConstraint a sh:PropertyShape ;
+    sh:path sched:constraintType ;
+    sh:not [
+        sh:in (
+            "Must Start On"
+            "Must Finish On"
+            "Start No Later Than"
+            "Finish No Later Than"
+            "Mandatory Start"
+            "Mandatory Finish"
+        )
+    ] ;
+    sh:message "Check 5 (Hard constraints): incomplete task has a hard constraint." .
