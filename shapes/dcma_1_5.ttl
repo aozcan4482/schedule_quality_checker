@@ -6,8 +6,10 @@
 #  Bu dosya ne yapar?
 #    Her kontrol, kurala UYMAYAN her aktiviteyi veya bağlantıyı tek tek
 #    işaretler (pySHACL raporunda bir "ihlal" = Findings sayfasında bir satır).
-#    Oran hesabı (örn. "en fazla %5") burada YAPILMAZ; o iş ileride SPARQL
-#    sorgularıyla yapılacak.
+#    Oran hesabı (örn. "en fazla %5") burada YAPILMAZ; onu queries/ klasöründeki
+#    SPARQL sorguları yapar (metrics/ratios.py çalıştırır). Ama EŞİKLER bu
+#    dosyada durur (aşağıdaki "Eşikler" bölümü), böylece planlama mühendisi
+#    kodu açmadan eşiği değiştirebilir (Story 5).
 #
 #  Kim sayılır? (DCMA 2012 / Mosaic WP1088)
 #    - Aktivite kontrolleri (1, 5): türü "Task" olan ve tamamlanmamış aktiviteler.
@@ -38,6 +40,61 @@ sched:DcmaPrefixes
         sh:prefix    "sched" ;
         sh:namespace "http://example.org/schedule#"^^xsd:anyURI ;
     ] .
+
+
+# ---------------------------------------------------------------------
+#  Eşikler (planlama mühendisi BURAYI değiştirebilir)
+#
+#  Her kontrol için bir sched:Check düğümü. Bunlar SHACL shape'i DEĞİL;
+#  pySHACL onları görmezden gelir. metrics/ratios.py bu düğümleri okur,
+#  sched:ratioQuery'deki SPARQL dosyasını çalıştırır ve sonucu eşikle
+#  karşılaştırır.
+#
+#    sched:thresholdPercent  eşik, YÜZDE olarak (5.0 = %5)
+#    sched:comparison        "<=" -> oran eşikten küçük/eşitse geçer
+#                            ">=" -> oran eşikten büyük/eşitse geçer
+#    sched:ratioQuery        queries/ klasöründeki sorgu dosyasının adı
+#    sched:countingRule      rapordaki "Method" sayfası için sayım kuralı
+# ---------------------------------------------------------------------
+sched:Check1 a sched:Check ;
+    sched:checkNumber 1 ;
+    sched:checkName "Logic" ;
+    sched:thresholdPercent 5.0 ;
+    sched:comparison "<=" ;
+    sched:ratioQuery "check1_logic.rq" ;
+    sched:countingRule "Incomplete tasks missing a predecessor or a successor, divided by all incomplete tasks (milestones, level of effort, summaries and completed activities excluded)." .
+
+sched:Check2 a sched:Check ;
+    sched:checkNumber 2 ;
+    sched:checkName "Leads" ;
+    sched:thresholdPercent 0.0 ;
+    sched:comparison "<=" ;
+    sched:ratioQuery "check2_leads.rq" ;
+    sched:countingRule "Relationships with a negative lag, divided by all relationships whose successor is an incomplete task." .
+
+sched:Check3 a sched:Check ;
+    sched:checkNumber 3 ;
+    sched:checkName "Lags" ;
+    sched:thresholdPercent 5.0 ;
+    sched:comparison "<=" ;
+    sched:ratioQuery "check3_lags.rq" ;
+    sched:countingRule "Relationships with a positive lag, divided by all relationships whose successor is an incomplete task." .
+
+sched:Check4 a sched:Check ;
+    sched:checkNumber 4 ;
+    sched:checkName "Relationship types" ;
+    sched:thresholdPercent 90.0 ;
+    sched:comparison ">=" ;
+    sched:ratioQuery "check4_relationship_types.rq" ;
+    sched:countingRule "Finish-to-Start relationships, divided by all relationships whose successor is an incomplete task." .
+
+sched:Check5 a sched:Check ;
+    sched:checkNumber 5 ;
+    sched:checkName "Hard constraints" ;
+    sched:thresholdPercent 5.0 ;
+    sched:comparison "<=" ;
+    sched:ratioQuery "check5_hard_constraints.rq" ;
+    sched:countingRule "Incomplete tasks with a hard constraint (Must Start On, Must Finish On, Start No Later Than, Finish No Later Than, Mandatory Start, Mandatory Finish), divided by all incomplete tasks." .
 
 
 # ---------------------------------------------------------------------
@@ -135,7 +192,14 @@ sched:Check3_PositiveLag a sh:PropertyShape ;
 #  Kontrol 4 — Relationship types
 #  Kural : FS dışındaki her bağlantı (SS, FF, SF) bulgu olarak listelenir.
 #  Eşik  : FS bağlantı / sayılan bağlantı  >= %90
-#  sh:in ( "FS" ) = değer sadece "FS" olabilir.
+#  sh:pattern "^FS$" = değerin METNİ tam olarak "FS" olmalı (regex).
+#
+#  Neden sh:in değil de sh:pattern?
+#    sh:in değeri tipiyle birlikte karşılaştırır. Arda'nın mapper'ı metni
+#    "FS"^^xsd:string olarak yazıyor; Turtle'daki ( "FS" ) ise tipsiz.
+#    rdflib ikisini FARKLI sayıyor -> sh:in ile düz FS bağlantı bile
+#    yanlışlıkla bulgu çıkıyordu. sh:pattern sadece metne bakar, tip
+#    farkını umursamaz. (Test: test_mapper_gibi_xsd_string_yazilan_degerler)
 # ---------------------------------------------------------------------
 sched:Check4_RelationshipTypesShape a sh:NodeShape ;
     sh:target sched:CountedRelationshipTarget ;
@@ -143,7 +207,7 @@ sched:Check4_RelationshipTypesShape a sh:NodeShape ;
 
 sched:Check4_NonFinishToStart a sh:PropertyShape ;
     sh:path sched:relationshipType ;
-    sh:in ( "FS" ) ;
+    sh:pattern "^FS$" ;
     sh:message "Check 4 (Relationship types): relationship is not Finish-to-Start." .
 
 
@@ -153,8 +217,13 @@ sched:Check4_NonFinishToStart a sh:PropertyShape ;
 #  Eşik  : kısıtlı task / sayılan task  <= %5
 #  Sert kısıt listesi (MS Project + P6 adları). Start/Finish No Earlier Than
 #  gibi yumuşak kısıtlar listede YOK, onlar serbest.
-#  sh:not [ sh:in (...) ] = değer bu listedeki hiçbir şey olamaz.
+#  sh:not [ sh:pattern "^(A|B|...)$" ] = değerin metni listedekilerden
+#  HİÇBİRİ olamaz. ^ ve $ "tam eşleşme" demek; | "veya" demek.
+#  sh:in yerine sh:pattern kullanma nedeni kontrol 4'teki notla aynı
+#  (sh:in ile mapper'dan gelen A4 kısıtı hiç yakalanmıyordu!).
 #  Değerler şablondan tam bu yazımla gelmeli -> Aysu ile netleşecek.
+#  DİKKAT: Listeyi değiştirirsen queries/check5_hard_constraints.rq
+#  içindeki aynı listeyi de değiştir (test_ratios.py ikisini karşılaştırır).
 # ---------------------------------------------------------------------
 sched:Check5_HardConstraintsShape a sh:NodeShape ;
     sh:target [
@@ -175,13 +244,6 @@ sched:Check5_HardConstraintsShape a sh:NodeShape ;
 sched:Check5_HardConstraint a sh:PropertyShape ;
     sh:path sched:constraintType ;
     sh:not [
-        sh:in (
-            "Must Start On"
-            "Must Finish On"
-            "Start No Later Than"
-            "Finish No Later Than"
-            "Mandatory Start"
-            "Mandatory Finish"
-        )
+        sh:pattern "^(Must Start On|Must Finish On|Start No Later Than|Finish No Later Than|Mandatory Start|Mandatory Finish)$"
     ] ;
     sh:message "Check 5 (Hard constraints): incomplete task has a hard constraint." .

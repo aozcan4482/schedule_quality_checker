@@ -1,0 +1,36 @@
+# DCMA Kontrol 1 — Logic (oran)
+#
+# Oran  = öncülü VEYA ardılı eksik olan task / sayılan task
+# Eşik  : <= %5   (shapes/dcma_1_5.ttl -> sched:Check1)
+#
+# Bu klasördeki her sorgu aynı biçimde TEK SATIR döndürür:
+#   ?applicable  payda: kontrolün kapsadığı öğe sayısı
+#   ?numerator   pay: eşikle karşılaştırılan oranın payı
+#   ?offending   bulgu olarak listelenen öğe sayısı
+# Kontrol 1, 2, 3, 5'te numerator = offending. Sadece kontrol 4 farklı.
+#
+# Kendin dene (proje klasöründe, .venv aktifken):
+#   sparqlquery tests/data/ornek_program.ttl -qf queries/check1_logic.rq
+#
+# NOT: Hem öncülü hem ardılı eksik bir task SHACL'da 2 ihlal verir, ama burada
+# 1 KEZ sayılır (DCMA görevleri sayar, ihlalleri değil).
+
+PREFIX sched: <http://example.org/schedule#>
+
+SELECT (COUNT(?task) AS ?applicable)
+       (SUM(?bad)    AS ?numerator)
+       (SUM(?bad)    AS ?offending)
+WHERE {
+    # Sayılan task'lar: SHACL dosyasındaki kontrol 1 hedefinin AYNISI.
+    ?task a sched:Activity ;
+          sched:activityType ?type ;
+          sched:status ?status .
+    FILTER (LCASE(STR(?type)) = "task")
+    FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+
+    # Her task için 1 (hatalı) ya da 0 (sorunsuz); SUM bunları toplar.
+    # Öncülü var mı? = bu task'ı successor olarak gösteren bağlantı var mı?
+    BIND (IF (EXISTS { ?r1 sched:successor   ?task } &&
+              EXISTS { ?r2 sched:predecessor ?task },
+              0, 1) AS ?bad)
+}

@@ -1,0 +1,24 @@
+# DCMA Kontrol 3 — Lags (oran)
+#
+# Oran  = pozitif lag'li bağlantı / sayılan bağlantı
+# Eşik  : <= %5   (shapes/dcma_1_5.ttl -> sched:Check3)
+# lag = 0 sorun değil; negatif lag kontrol 2'nin konusu.
+# Çıktı biçimi için: check1_logic.rq başındaki açıklama.
+#
+#   sparqlquery tests/data/ornek_program.ttl -qf queries/check3_lags.rq
+
+PREFIX sched: <http://example.org/schedule#>
+
+SELECT (COUNT(?rel) AS ?applicable)
+       (SUM(?bad)   AS ?numerator)
+       (SUM(?bad)   AS ?offending)
+WHERE {
+    ?rel a sched:Relationship ;
+         sched:successor ?succ .
+    ?succ sched:activityType ?type ;
+          sched:status ?status .
+    FILTER (LCASE(STR(?type)) = "task")
+    FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+
+    BIND (IF (EXISTS { ?rel sched:lag ?lag  FILTER (?lag > 0) }, 1, 0) AS ?bad)
+}

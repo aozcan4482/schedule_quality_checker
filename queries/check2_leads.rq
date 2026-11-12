@@ -1,0 +1,26 @@
+# DCMA Kontrol 2 — Leads (oran)
+#
+# Oran  = negatif lag'li bağlantı / sayılan bağlantı
+# Eşik  : <= %0, yani tek bir lead bile kontrolü fail ettirir
+#         (shapes/dcma_1_5.ttl -> sched:Check2)
+# Çıktı biçimi için: check1_logic.rq başındaki açıklama.
+#
+#   sparqlquery tests/data/ornek_program.ttl -qf queries/check2_leads.rq
+
+PREFIX sched: <http://example.org/schedule#>
+
+SELECT (COUNT(?rel) AS ?applicable)
+       (SUM(?bad)   AS ?numerator)
+       (SUM(?bad)   AS ?offending)
+WHERE {
+    # Sayılan bağlantılar: ardılı tamamlanmamış bir task olanlar.
+    # SHACL dosyasındaki sched:CountedRelationshipTarget ile AYNI.
+    ?rel a sched:Relationship ;
+         sched:successor ?succ .
+    ?succ sched:activityType ?type ;
+          sched:status ?status .
+    FILTER (LCASE(STR(?type)) = "task")
+    FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+
+    BIND (IF (EXISTS { ?rel sched:lag ?lag  FILTER (?lag < 0) }, 1, 0) AS ?bad)
+}
