@@ -1,0 +1,29 @@
+# DCMA Kontrol 5 — Hard constraints (oran)
+#
+# Oran  = sert kısıtlı task / sayılan task
+# Eşik  : <= %5   (shapes/dcma_1_5.ttl -> sched:Check5)
+# Çıktı biçimi için: check1_logic.rq başındaki açıklama.
+#
+#   sparqlquery tests/data/ornek_program.ttl -qf queries/check5_hard_constraints.rq
+#
+# DİKKAT: Aşağıdaki kısıt listesi shapes/dcma_1_5.ttl'deki
+# sched:Check5_HardConstraint listesiyle AYNI olmalı. Birini değiştirirsen
+# diğerini de değiştir; tests/test_ratios.py farkı yakalar.
+
+PREFIX sched: <http://example.org/schedule#>
+
+SELECT (COUNT(?task) AS ?applicable)
+       (SUM(?bad)    AS ?numerator)
+       (SUM(?bad)    AS ?offending)
+WHERE {
+    ?task a sched:Activity ;
+          sched:activityType ?type ;
+          sched:status ?status .
+    FILTER (LCASE(STR(?type)) = "task")
+    FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+
+    BIND (IF (EXISTS { ?task sched:constraintType ?constraint
+                       FILTER (REGEX(STR(?constraint),
+                           "^(Must Start On|Must Finish On|Start No Later Than|Finish No Later Than|Mandatory Start|Mandatory Finish)$")) },
+              1, 0) AS ?bad)
+}

@@ -1,0 +1,33 @@
+# DCMA Kontrol 4 — Relationship types (oran)
+#
+# Oran  = FS bağlantı / sayılan bağlantı
+# Eşik  : >= %90  (shapes/dcma_1_5.ttl -> sched:Check4)
+#
+# Bu kontrol TERS yönlü: eşikle karşılaştırılan şey "iyi" bağlantılar (FS),
+# ama bulgu olarak listelenenler "kötü" olanlar (SS, FF, SF). Bu yüzden
+#   ?numerator = FS sayısı        = payda - bulgu
+#   ?offending = FS olmayan sayısı
+# Türü hiç yazılmamış bağlantı FS sayılır (SHACL de onu işaretlemez;
+# mapper zaten varsayılan olarak "FS" yazıyor).
+#
+#   sparqlquery tests/data/ornek_program.ttl -qf queries/check4_relationship_types.rq
+
+PREFIX sched: <http://example.org/schedule#>
+
+SELECT (COUNT(?rel)              AS ?applicable)
+       (COUNT(?rel) - SUM(?bad)  AS ?numerator)
+       (SUM(?bad)                AS ?offending)
+WHERE {
+    ?rel a sched:Relationship ;
+         sched:successor ?succ .
+    ?succ sched:activityType ?type ;
+          sched:status ?status .
+    FILTER (LCASE(STR(?type)) = "task")
+    FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+
+    # SHACL'daki sh:pattern "^FS$" ile AYNI regex. STR() tipi atar, sadece
+    # metne bakar (mapper "FS"^^xsd:string yazıyor).
+    BIND (IF (EXISTS { ?rel sched:relationshipType ?relType
+                       FILTER (!REGEX(STR(?relType), "^FS$")) },
+              1, 0) AS ?bad)
+}

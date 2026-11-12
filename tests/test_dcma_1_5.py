@@ -24,6 +24,8 @@ SHAPES_FILE = ROOT / "shapes" / "dcma_1_5.ttl"
 DATA_FILE = ROOT / "tests" / "data" / "ornek_program.ttl"
 
 SCHED = Namespace("http://example.org/schedule#")
+# rdflib'in XSD nesnesini modüle almak pytest'te uyarı veriyor; bize sadece bu adres lazım.
+XSD_STRING = URIRef("http://www.w3.org/2001/XMLSchema#string")
 
 
 # --- Yardımcı fonksiyonlar -------------------------------------------------
@@ -171,6 +173,20 @@ def test_kontrol5_yumusak_kisit_sorun_degil():
     g = load_programme()
     set_value(g, "activity_A4", "constraintType", "Start No Earlier Than")
     assert only_check(findings(g), "Check5") == set()
+
+
+# --- Mapper'dan gelen veri biçimi -----------------------------------------
+
+def test_mapper_gibi_xsd_string_yazilan_degerler_de_calisir():
+    """Arda'nın mapper'ı metinleri "FS"^^xsd:string olarak yazıyor; elle yazdığımız
+    örnek program ise tipsiz "FS". İkisi de aynı sonucu vermeli.
+    (Önceki sh:in sürümünde R3 yanlışlıkla bulgu çıkıyor, A4 ise kaçıyordu.)"""
+    g = load_programme()
+    g.set((SCHED.relationship_3, SCHED.relationshipType, Literal("FS", datatype=XSD_STRING)))
+    g.set((SCHED.activity_A4, SCHED.constraintType, Literal("Must Finish On", datatype=XSD_STRING)))
+    found = findings(g)
+    assert "relationship_3" not in only_check(found, "Check4")
+    assert only_check(found, "Check5") == {"activity_A4"}
 
 
 # --- Tuzak: advanced mod ---------------------------------------------------
