@@ -1,0 +1,116 @@
+# Küçük, elle yazılmış örnek program (DCMA 1–5 shape'lerini denemek için).
+#
+# İsimler Arda Çiftçi'nin sözlüğüne göre (ardac branch'i, graph/vocabulary.py):
+#   namespace  sched: <http://example.org/schedule#>
+#   aktivite   sched:activity_<id>      bağlantı  sched:relationship_<no>
+#
+# FARK: Arda'nın mapper'ı predecessor/successor değerini metin ("A5") olarak yazıyor.
+# Burada aktivitenin kendisine (URI) işaret ediyoruz; kontrol 1 bunu gerektiriyor.
+# Ayrıntı: burak_ilerleme.md -> "Arda'ya iletilecekler".
+#
+# Bilerek konulan hatalar:
+#   A5  ardılı yok                 -> kontrol 1 (Logic)
+#   R6  lag = -1 (lead)            -> kontrol 2 (Leads)
+#   R4  lag = +2                   -> kontrol 3 (Lags)
+#   R4  tür = SS                   -> kontrol 4 (Relationship types)
+#   A4  Must Finish On kısıtı      -> kontrol 5 (Hard constraints)
+#
+# Sayıma girmeyenler: A0, A8 (Milestone), A1 (Completed), A7 (LOE).
+
+@prefix sched: <http://example.org/schedule#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+# ---------- Proje ----------
+
+sched:project_main a sched:Project ;
+    sched:projectName "Örnek Konut Projesi" ;
+    sched:dataDate "2026-11-01"^^xsd:date .
+
+# ---------- Aktiviteler ----------
+
+sched:activity_A0 a sched:Activity ;
+    sched:activityId "A0" ;
+    sched:activityName "Başlangıç" ;
+    sched:activityType "Milestone" ;
+    sched:status "Not Started" .
+
+sched:activity_A1 a sched:Activity ;
+    sched:activityId "A1" ;
+    sched:activityName "Kazı" ;
+    sched:activityType "Task" ;
+    sched:status "Completed" .
+
+sched:activity_A2 a sched:Activity ;
+    sched:activityId "A2" ;
+    sched:activityName "Temel" ;
+    sched:activityType "Task" ;
+    sched:status "In Progress" .
+
+sched:activity_A3 a sched:Activity ;
+    sched:activityId "A3" ;
+    sched:activityName "Kolonlar" ;
+    sched:activityType "Task" ;
+    sched:status "Not Started" .
+
+sched:activity_A4 a sched:Activity ;
+    sched:activityId "A4" ;
+    sched:activityName "Döşeme" ;
+    sched:activityType "Task" ;
+    sched:status "Not Started" ;
+    sched:constraintType "Must Finish On" .        # HATA -> kontrol 5
+
+sched:activity_A5 a sched:Activity ;               # HATA -> kontrol 1 (ardılı yok)
+    sched:activityId "A5" ;
+    sched:activityName "Duvarlar" ;
+    sched:activityType "Task" ;
+    sched:status "Not Started" .
+
+sched:activity_A6 a sched:Activity ;
+    sched:activityId "A6" ;
+    sched:activityName "Çatı" ;
+    sched:activityType "Task" ;
+    sched:status "Not Started" .
+
+sched:activity_A7 a sched:Activity ;
+    sched:activityId "A7" ;
+    sched:activityName "Proje yönetimi" ;
+    sched:activityType "LOE" ;
+    sched:status "In Progress" .
+
+sched:activity_A8 a sched:Activity ;
+    sched:activityId "A8" ;
+    sched:activityName "Bitiş" ;
+    sched:activityType "Milestone" ;
+    sched:status "Not Started" .
+
+# ---------- Bağlantılar ----------
+# Her bağlantı ayrı bir düğüm: tür ve lag bağlantının kendi özelliği.
+# Lag, Arda'nın mapper'ındaki gibi ondalık sayı (xsd:decimal).
+
+sched:relationship_1 a sched:Relationship ;
+    sched:predecessor sched:activity_A0 ; sched:successor sched:activity_A1 ;
+    sched:relationshipType "FS" ; sched:lag 0.0 .
+
+sched:relationship_2 a sched:Relationship ;
+    sched:predecessor sched:activity_A1 ; sched:successor sched:activity_A2 ;
+    sched:relationshipType "FS" ; sched:lag 0.0 .
+
+sched:relationship_3 a sched:Relationship ;
+    sched:predecessor sched:activity_A2 ; sched:successor sched:activity_A3 ;
+    sched:relationshipType "FS" ; sched:lag 0.0 .
+
+sched:relationship_4 a sched:Relationship ;        # HATA -> kontrol 3 ve 4
+    sched:predecessor sched:activity_A3 ; sched:successor sched:activity_A4 ;
+    sched:relationshipType "SS" ; sched:lag 2.0 .
+
+sched:relationship_5 a sched:Relationship ;
+    sched:predecessor sched:activity_A3 ; sched:successor sched:activity_A5 ;
+    sched:relationshipType "FS" ; sched:lag 0.0 .
+
+sched:relationship_6 a sched:Relationship ;        # HATA -> kontrol 2
+    sched:predecessor sched:activity_A4 ; sched:successor sched:activity_A6 ;
+    sched:relationshipType "FS" ; sched:lag -1.0 .
+
+sched:relationship_7 a sched:Relationship ;
+    sched:predecessor sched:activity_A6 ; sched:successor sched:activity_A8 ;
+    sched:relationshipType "FS" ; sched:lag 0.0 .
