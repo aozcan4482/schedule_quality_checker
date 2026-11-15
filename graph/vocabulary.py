@@ -32,3 +32,11 @@ PREDECESSOR = SCHED.predecessor
 SUCCESSOR = SCHED.successor
 RELATIONSHIP_TYPE = SCHED.relationshipType
 LAG = SCHED.lag
+
+CHECK_NUMBER = SCHED.checkNumber
+CHECK_NAME = SCHED.checkName
+THRESHOLD_PERCENT = SCHED.thresholdPercent
+THRESHOLD_INDEX = SCHED.thresholdIndex
+COMPARISON = SCHED.comparison
+COUNTING_RULE = SCHED.countingRule
+RATIO_QUERY = SCHED.ratioQuery

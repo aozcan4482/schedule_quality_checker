@@ -81,6 +81,7 @@ class CheckResult:
     status: str
     offending_count: int = 0
     total_applicable: int = 0
+    comparison: str = "<="
 
 
 @dataclass
@@ -117,10 +118,11 @@ def programme_to_graph(project: Project) -> Graph:
         graph.add((act_uri, DURATION, Literal(float(act.duration), datatype=XSD.decimal)))
         graph.add((act_uri, DATA_DATE, Literal(project.data_date, datatype=XSD.date)))
 
-        is_incomplete = act.status.strip().lower() != "complete"
-        if is_incomplete:
+        is_incomplete = act.status.strip().lower() not in ("complete", "completed")
+        is_task = act.activity_type.strip().lower() == "task"
+        if is_incomplete and is_task:
             graph.add((act_uri, RDF.type, INCOMPLETE_ACTIVITY))
-            if act.duration > 0 and act.activity_type.strip().lower() not in ("milestone", "summary"):
+            if act.duration > 0:
                 graph.add((act_uri, RDF.type, POSITIVE_DURATION_ACTIVITY))
 
         if act.total_float is not None:
@@ -143,8 +145,8 @@ def programme_to_graph(project: Project) -> Graph:
     for idx, rel in enumerate(project.relationships, start=1):
         rel_uri = URIRef(f"{SCHED}relationship_{idx}")
         graph.add((rel_uri, RDF.type, RELATIONSHIP))
-        graph.add((rel_uri, PREDECESSOR, Literal(rel.predecessor, datatype=XSD.string)))
-        graph.add((rel_uri, SUCCESSOR, Literal(rel.successor, datatype=XSD.string)))
+        graph.add((rel_uri, PREDECESSOR, URIRef(f"{SCHED}activity_{rel.predecessor}")))
+        graph.add((rel_uri, SUCCESSOR, URIRef(f"{SCHED}activity_{rel.successor}")))
         graph.add((rel_uri, RELATIONSHIP_TYPE, Literal(rel.relationship_type, datatype=XSD.string)))
         graph.add((rel_uri, LAG, Literal(float(rel.lag), datatype=XSD.decimal)))
 
