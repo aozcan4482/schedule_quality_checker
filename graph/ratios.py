@@ -5,7 +5,7 @@ Ne yapar?
        -> sched:Check1 ... sched:Check5 düğümleri.
     2. Her kontrol için shapes/queries/ klasöründeki SPARQL sorgusunu programın
        grafiğinde çalıştırır -> payda, pay ve bulgu sayısı.
-    3. Oranı yüzde olarak hesaplar ve eşikle karşılaştırır -> Pass / Fail / N/A.
+    3. Oranı yüzde olarak hesaplar ve eşikle karşılaştırır -> Pass / Fail / Not Applicable.
 
 SHACL ile farkı:
     SHACL (pySHACL) hatalı öğeleri TEK TEK bulur  -> raporun Findings sayfası.
@@ -37,9 +37,11 @@ DEFAULT_SHAPES_FILE = ROOT / "shapes" / "dcma_1_5.ttl"
 # --- Sonuç değerleri -------------------------------------------------------
 # Proposal: "pass, fail or not applicable". Rapor yazıcı (Arda Özcan) bu
 # metinleri Summary sayfasına yazacak; değiştirmek gerekirse sadece burası.
+# Arda Çiftçi'nin graph/metrics.py'si (kontrol 6–11, BEI) de aynı üç metni
+# kullanıyor; rapordaki 12 satır tutarlı olsun diye ikisi aynı kalmalı.
 PASS = "Pass"
 FAIL = "Fail"
-NOT_APPLICABLE = "N/A"
+NOT_APPLICABLE = "Not Applicable"
 
 # Kural dosyasında izin verilen karşılaştırmalar.
 COMPARISONS = ("<=", ">=")
@@ -189,13 +191,13 @@ def compute_ratios(data: Graph, shapes: Graph) -> list[CheckResult]:
 
 def format_table(results: list[CheckResult]) -> str:
     """Sonuçları terminalde okunur bir tablo olarak hazırlar."""
-    lines = [f"{'Check':<24} {'Value':>7}  {'Threshold':<9}  {'Result':<6}  Findings"]
+    lines = [f"{'Check':<24} {'Value':>7}  {'Threshold':<9}  {'Result':<14}  Findings"]
     for r in results:
         value = "-" if r.measured_value is None else f"{r.measured_value:.1f}%"
         threshold = f"{r.comparison} {r.threshold:g}%"
         lines.append(
             f"{r.check_number} {r.check_name:<22} {value:>7}  {threshold:<9}  "
-            f"{r.status:<6}  {r.offending_count}/{r.total_applicable}"
+            f"{r.status:<14}  {r.offending_count}/{r.total_applicable}"
         )
     return "\n".join(lines)
 

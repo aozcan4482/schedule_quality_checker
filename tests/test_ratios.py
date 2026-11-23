@@ -154,7 +154,7 @@ def test_karar_fonksiyonu(value, threshold, comparison, expected):
 # --- Payda ve sayım kuralları ----------------------------------------------
 
 def test_sayilacak_task_yoksa_not_applicable():
-    """Bütün task'lar tamamlanmışsa oran tanımsız -> N/A (0'a bölme hatası değil)."""
+    """Bütün task'lar tamamlanmışsa oran tanımsız -> Not Applicable (0'a bölme hatası değil)."""
     g = load_programme()
     for act in ("A2", "A3", "A4", "A5", "A6"):
         set_value(g, f"activity_{act}", "status", "Completed")
