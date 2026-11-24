@@ -1,0 +1,195 @@
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix sched: <http://example.org/schedule#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+sched:DcmaPrefixes
+    sh:declare [
+        sh:prefix    "sched" ;
+        sh:namespace "http://example.org/schedule#"^^xsd:anyURI ;
+    ] .
+
+sched:Check6 a sched:Check ;
+    sched:checkNumber 6 ;
+    sched:checkName "High Float" ;
+    sched:thresholdPercent 5.0 ;
+    sched:comparison "<=" ;
+    sched:countingRule "Incomplete tasks with total float greater than 44 working days, divided by all incomplete tasks." .
+
+sched:Check7 a sched:Check ;
+    sched:checkNumber 7 ;
+    sched:checkName "Negative Float" ;
+    sched:thresholdPercent 0.0 ;
+    sched:comparison "<=" ;
+    sched:countingRule "Incomplete tasks with negative total float (< 0 working days), divided by all incomplete tasks." .
+
+sched:Check8 a sched:Check ;
+    sched:checkNumber 8 ;
+    sched:checkName "High Duration" ;
+    sched:thresholdPercent 5.0 ;
+    sched:comparison "<=" ;
+    sched:countingRule "Incomplete tasks with duration greater than 44 working days, divided by all incomplete tasks." .
+
+sched:Check9 a sched:Check ;
+    sched:checkNumber 9 ;
+    sched:checkName "Invalid Dates" ;
+    sched:thresholdPercent 0.0 ;
+    sched:comparison "<=" ;
+    sched:countingRule "Activities with forecast start/finish before data date or actual start/finish after data date, divided by all activities." .
+
+sched:Check10 a sched:Check ;
+    sched:checkNumber 10 ;
+    sched:checkName "Resources" ;
+    sched:thresholdPercent 0.0 ;
+    sched:comparison "<=" ;
+    sched:countingRule "Incomplete positive-duration tasks missing a resource assignment, divided by all incomplete positive-duration tasks." .
+
+sched:Check11 a sched:Check ;
+    sched:checkNumber 11 ;
+    sched:checkName "Missed Activities" ;
+    sched:thresholdPercent 5.0 ;
+    sched:comparison "<=" ;
+    sched:countingRule "Activities planned to finish on or before data date that finished after baseline finish or remain incomplete, divided by activities planned to finish on or before data date." .
+
+sched:Check14 a sched:Check ;
+    sched:checkNumber 14 ;
+    sched:checkName "Baseline Execution Index (BEI)" ;
+    sched:thresholdIndex 0.95 ;
+    sched:comparison ">=" ;
+    sched:countingRule "Completed activities divided by activities with baseline finish on or before data date." .
+
+sched:IncompleteTaskTarget a sh:SPARQLTarget ;
+    sh:prefixes sched:DcmaPrefixes ;
+    sh:select """
+        SELECT ?this WHERE {
+            ?this a sched:Activity ;
+                  sched:activityType ?type ;
+                  sched:status ?status .
+            FILTER (LCASE(STR(?type)) = "task")
+            FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+        }
+    """ .
+
+sched:PositiveDurationTaskTarget a sh:SPARQLTarget ;
+    sh:prefixes sched:DcmaPrefixes ;
+    sh:select """
+        SELECT ?this WHERE {
+            ?this a sched:Activity ;
+                  sched:activityType ?type ;
+                  sched:status ?status ;
+                  sched:duration ?dur .
+            FILTER (LCASE(STR(?type)) = "task")
+            FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+            FILTER (?dur > 0)
+        }
+    """ .
+
+sched:Check6_HighFloatShape a sh:NodeShape ;
+    sh:target sched:IncompleteTaskTarget ;
+    sh:property [
+        sh:path sched:totalFloat ;
+        sh:maxInclusive 44 ;
+        sh:message "Check 6 (High Float): Incomplete task has total float greater than the allowed working days threshold." ;
+    ] .
+
+sched:Check7_NegativeFloatShape a sh:NodeShape ;
+    sh:target sched:IncompleteTaskTarget ;
+    sh:property [
+        sh:path sched:totalFloat ;
+        sh:minInclusive 0 ;
+        sh:message "Check 7 (Negative Float): Incomplete task has negative total float (< 0 working days)." ;
+    ] .
+
+sched:Check8_HighDurationShape a sh:NodeShape ;
+    sh:target sched:IncompleteTaskTarget ;
+    sh:property [
+        sh:path sched:duration ;
+        sh:maxInclusive 44 ;
+        sh:message "Check 8 (High Duration): Incomplete task has duration greater than the allowed working days threshold." ;
+    ] .
+
+sched:Check9_InvalidDatesShape a sh:NodeShape ;
+    sh:targetClass sched:Activity ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:prefixes sched:DcmaPrefixes ;
+        sh:message "Check 9 (Invalid Dates): Activity has forecast date before data date or actual date in the future." ;
+        sh:select """
+            SELECT $this ?value
+            WHERE {
+                OPTIONAL { $this sched:dataDate ?actDD }
+                OPTIONAL {
+                    ?proj a sched:Project ;
+                          sched:dataDate ?projDD .
+                }
+                BIND (COALESCE(?actDD, ?projDD) AS ?dataDate)
+                FILTER (BOUND(?dataDate))
+                {
+                    $this sched:status ?status ;
+                          sched:start ?value .
+                    FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+                    BIND ("before" AS ?mode)
+                }
+                UNION
+                {
+                    $this sched:status ?status ;
+                          sched:finish ?value .
+                    FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+                    BIND ("before" AS ?mode)
+                }
+                UNION
+                {
+                    $this sched:actualStart ?value .
+                    BIND ("after" AS ?mode)
+                }
+                UNION
+                {
+                    $this sched:actualFinish ?value .
+                    BIND ("after" AS ?mode)
+                }
+                FILTER (
+                    (?mode = "before" && ?value < ?dataDate)
+                    || (?mode = "after" && ?value > ?dataDate)
+                )
+            }
+        """ ;
+    ] .
+
+sched:Check10_ResourceShape a sh:NodeShape ;
+    sh:target sched:PositiveDurationTaskTarget ;
+    sh:property [
+        sh:path sched:resource ;
+        sh:minCount 1 ;
+        sh:minLength 1 ;
+        sh:message "Check 10 (Resources): Incomplete task with positive duration is missing a resource assignment." ;
+    ] .
+
+sched:Check11_MissedActivityShape a sh:NodeShape ;
+    sh:targetClass sched:Activity ;
+    sh:sparql [
+        a sh:SPARQLConstraint ;
+        sh:prefixes sched:DcmaPrefixes ;
+        sh:message "Check 11 (Missed Activities): Activity planned to finish on or before data date missed its baseline finish date." ;
+        sh:select """
+            SELECT $this ?value
+            WHERE {
+                $this sched:baselineFinish ?baselineFinish ;
+                      sched:status ?status .
+                OPTIONAL { $this sched:dataDate ?actDD }
+                OPTIONAL {
+                    ?proj a sched:Project ;
+                          sched:dataDate ?projDD .
+                }
+                BIND (COALESCE(?actDD, ?projDD) AS ?dataDate)
+                FILTER (BOUND(?dataDate))
+                FILTER (?baselineFinish <= ?dataDate)
+                OPTIONAL { $this sched:actualFinish ?actualFinish }
+                OPTIONAL { $this sched:finish ?finish }
+                FILTER (
+                    LCASE(STR(?status)) NOT IN ("complete", "completed")
+                    || (BOUND(?actualFinish) && ?actualFinish > ?baselineFinish)
+                    || (BOUND(?finish) && ?finish > ?baselineFinish)
+                )
+                BIND (?baselineFinish AS ?value)
+            }
+        """ ;
+    ] .
