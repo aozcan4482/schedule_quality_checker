@@ -28,6 +28,11 @@ from pathlib import Path
 
 from rdflib import Graph
 
+# Tek CheckResult ve tek Pass/Fail/Not Applicable yazımı: Arda'nın modülünden.
+# Böylece kontrol 1–5 ve 6–11 sonuçları aynı sınıfla, aynı metinlerle döner.
+from graph.metrics import FAIL, NOT_APPLICABLE, PASS
+from graph.models import CheckResult
+
 # --- Dosya yolları ---------------------------------------------------------
 # Path(__file__) = bu dosya; .parent.parent = proje kök klasörü.
 ROOT = Path(__file__).resolve().parent.parent
@@ -35,13 +40,8 @@ QUERIES_DIR = ROOT / "shapes" / "queries"
 DEFAULT_SHAPES_FILE = ROOT / "shapes" / "dcma_1_5.ttl"
 
 # --- Sonuç değerleri -------------------------------------------------------
-# Proposal: "pass, fail or not applicable". Rapor yazıcı (Arda Özcan) bu
-# metinleri Summary sayfasına yazacak; değiştirmek gerekirse sadece burası.
-# Arda Çiftçi'nin graph/metrics.py'si (kontrol 6–11, BEI) de aynı üç metni
-# kullanıyor; rapordaki 12 satır tutarlı olsun diye ikisi aynı kalmalı.
-PASS = "Pass"
-FAIL = "Fail"
-NOT_APPLICABLE = "Not Applicable"
+# PASS, FAIL, NOT_APPLICABLE yukarıda graph/metrics.py'den alındı.
+# Proposal: "pass, fail or not applicable". Değiştirmek gerekirse orada.
 
 # Kural dosyasında izin verilen karşılaştırmalar.
 COMPARISONS = ("<=", ">=")
@@ -59,23 +59,12 @@ class CheckDefinition:
     counting_rule: str = ""   # raporun Method sayfası için
 
 
-@dataclass
-class CheckResult:
-    """Bir kontrolün sonucu (raporun Summary sayfasında bir satır).
-
-    Alan adları Arda'nın graph/models.py'deki CheckResult'ıyla AYNI;
-    sadece sonuna `comparison` eklendi (raporda "<= 5%" / ">= 90%" yazmak için).
-    Branch'ler birleşince bunun yerine onunki kullanılabilir.
-    """
-
-    check_number: int
-    check_name: str
-    measured_value: float | None   # yüzde; payda 0 ise None
-    threshold: float               # yüzde
-    status: str                    # PASS, FAIL ya da NOT_APPLICABLE
-    offending_count: int = 0       # bulgu sayısı
-    total_applicable: int = 0      # payda
-    comparison: str = "<="
+# CheckResult (raporun Summary sayfasında bir satır) graph/models.py'de:
+#   check_number, check_name, measured_value (yüzde; payda 0 ise None),
+#   threshold, status, offending_count (bulgu), total_applicable (payda),
+#   comparison ("<=" / ">=").
+# Eskiden burada aynı alanlarla bir kopyası vardı; branch'ler birleşince
+# tek sınıfa indirildi.
 
 
 # --- 1. Eşikleri kural dosyasından oku -------------------------------------
