@@ -208,3 +208,106 @@ def test_all_completed_tasks_return_not_applicable():
     assert calculate_check_8_high_duration(graph).status == NOT_APPLICABLE
     assert calculate_check_10_resources(graph).status == NOT_APPLICABLE
     assert calculate_check_9_invalid_dates(graph).status == "Pass"
+
+
+def test_check9_in_progress_activity_past_start_is_valid():
+    project = Project(
+        name="In Progress Programme",
+        data_date=date(2026, 11, 1),
+        activities=[
+            Activity(
+                id="A1",
+                name="Active Excavation",
+                status="In Progress",
+                duration=30,
+                start=date(2026, 10, 20),
+                actual_start=date(2026, 10, 20),
+                finish=date(2026, 11, 20),
+                total_float=5,
+                resource="Crew 1",
+            )
+        ],
+    )
+    report = run_float_date_resource_audit(project)
+    check9_findings = [f for f in report.findings if f.check_number == 9]
+    assert check9_findings == []
+    assert report.check_results[9].offending_count == 0
+    assert report.check_results[9].status == "Pass"
+
+
+def test_check11_and_bei_exclude_summary_and_loe():
+    project = Project(
+        name="Summary And LOE Filter Programme",
+        data_date=date(2026, 11, 1),
+        activities=[
+            Activity(
+                id="T1",
+                name="Completed Task",
+                activity_type="Task",
+                status="Completed",
+                duration=10,
+                start=date(2026, 10, 1),
+                finish=date(2026, 10, 10),
+                actual_start=date(2026, 10, 1),
+                actual_finish=date(2026, 10, 10),
+                baseline_finish=date(2026, 10, 10),
+                resource="Crew 1",
+            ),
+            Activity(
+                id="T2",
+                name="Missed Task",
+                activity_type="Task",
+                status="Not Started",
+                duration=10,
+                start=date(2026, 11, 5),
+                finish=date(2026, 11, 15),
+                baseline_finish=date(2026, 10, 20),
+                resource="Crew 1",
+            ),
+            Activity(
+                id="S1",
+                name="Phase Summary",
+                activity_type="Summary",
+                status="Completed",
+                duration=20,
+            ),
+            Activity(
+                id="L1",
+                name="Project Management LOE",
+                activity_type="LOE",
+                status="In Progress",
+                duration=60,
+                start=date(2026, 10, 1),
+                actual_start=date(2026, 10, 1),
+                finish=date(2026, 12, 1),
+                baseline_finish=date(2026, 10, 15),
+            ),
+        ],
+    )
+    report = run_float_date_resource_audit(project)
+    check11_findings = [f for f in report.findings if f.check_number == 11]
+    assert [f.target_id for f in check11_findings] == ["T2"]
+    assert (report.check_results[11].offending_count, report.check_results[11].total_applicable) == (1, 2)
+    assert (report.check_results[14].measured_value, report.check_results[14].status) == (0.5, "Fail")
+
+
+def test_check11_no_due_activities_returns_not_applicable():
+    project = Project(
+        name="Future Baseline Programme",
+        data_date=date(2026, 11, 1),
+        activities=[
+            Activity(
+                id="T1",
+                name="Future Task",
+                status="Not Started",
+                duration=10,
+                start=date(2026, 11, 10),
+                finish=date(2026, 11, 20),
+                baseline_finish=date(2026, 12, 5),
+                resource="Crew 1",
+            )
+        ],
+    )
+    graph = programme_to_graph(project)
+    res11 = calculate_check_11_missed_activities(graph)
+    assert (res11.measured_value, res11.status) == (None, NOT_APPLICABLE)
