@@ -5,16 +5,15 @@
 
 İki tür test var:
 
-1. Normal testler: Review'da doğru çalıştığı görülen davranışlar. Sınır
-   değerler (veri tarihine eşit tarih), SHACL ile SPARQL'ın aynı öğeleri
-   sayması ve iki shapes dosyasının birlikte çalışması.
+1. Review'da doğru çalıştığı görülen davranışlar: sınır değerler (veri
+   tarihine eşit tarih), SHACL ile SPARQL'ın aynı öğeleri sayması ve iki
+   shapes dosyasının birlikte çalışması.
 
-2. @pytest.mark.xfail(strict=True) testler: Review'da BULUNAN HATALAR.
-   Test, DCMA'ya göre DOĞRU olan sonucu bekler. Kod şu an yanlış sonuç
-   verdiği için "beklenen hata" (x) olarak görünür ve test paketi kırılmaz.
-   Arda hatayı düzeltince test geçer; strict=True olduğu için pytest bunu
-   "XPASS" diye hata sayar. O zaman xfail satırını silmek yeterli.
-   Yani bu testler aynı zamanda yapılacaklar listesi.
+2. Review'da BULUNAN 4 HATANIN regresyon testleri. 24 Kasım'da bunlar
+   @pytest.mark.xfail(strict=True) olarak yazıldı: test DCMA'ya göre doğru
+   sonucu bekliyordu, kod yanlış verdiği için "beklenen hata" görünüyordu.
+   Arda 26 Kasım'da düzeltti (ardac, dacc5c6); testler "XPASS" verince xfail
+   satırları silindi. Artık normal test: hata geri gelirse paket kırılır.
 
 Bütün programlar Arda'nın mapper'ıyla (programme_to_graph) kuruluyor; yani
 testler gerçek veri yolunu kullanıyor.
@@ -95,13 +94,13 @@ def test_kontrol9_iki_tarihi_bozuk_aktivite_bir_kez_sayilir():
     assert calculate_check_9_invalid_dates(g).offending_count == 1
 
 
-# --- Bulunan hatalar (xfail) ------------------------------------------------
+# --- Review'da bulunan hatalar (regresyon testleri) ------------------------
 
-@pytest.mark.xfail(strict=True, reason=(
-    "HATA 1: Devam eden işin başlangıcı gerçek başlangıçtır ve geçmişte olması "
-    "normaldir. DCMA 9a sadece başlamamış işin tahmini başlangıcına bakar. "
-    "Düzeltme: 'start < dataDate' dalı sadece actualStart'ı OLMAYAN işlere "
-    "uygulanmalı (hem shapes'teki Check9 hem metrics.py)."))
+# Review hatası 1 (24 Kas) — Arda düzeltti (26 Kas, dacc5c6):
+#   Devam eden işin başlangıcı gerçek başlangıçtır ve geçmişte olması
+#   normaldir. DCMA 9a sadece başlamamış işin tahmini başlangıcına bakar.
+#   Düzeltme: 'start < dataDate' dalı sadece actualStart'ı OLMAYAN işlere
+#   uygulanmalı (hem shapes'teki Check9 hem metrics.py).
 def test_kontrol9_devam_eden_isin_gecmisteki_baslangici_hata_degil():
     g = graph_of(task("A1", status="In Progress", start=date(2026, 10, 20),
                       actual_start=date(2026, 10, 20), finish=date(2026, 11, 20), duration=30))
@@ -110,11 +109,11 @@ def test_kontrol9_devam_eden_isin_gecmisteki_baslangici_hata_degil():
     assert shacl_9 == []
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "HATA 2: BEI'nin payı (tamamlanan) bütün aktivite türlerini sayıyor, paydası "
-    "ise sadece baseline'ı olanları. Tamamlanmış bir Summary BEI'yi 0.5'ten 1.0'a "
-    "çıkarıp kontrolü yanlışlıkla geçiriyor. Pay ve payda aynı aktivite kümesinden "
-    "sayılmalı."))
+# Review hatası 2 (24 Kas) — Arda düzeltti (26 Kas, dacc5c6):
+#   BEI'nin payı (tamamlanan) bütün aktivite türlerini sayıyor, paydası ise
+#   sadece baseline'ı olanları. Tamamlanmış bir Summary BEI'yi 0.5'ten 1.0'a
+#   çıkarıp kontrolü yanlışlıkla geçiriyor. Pay ve payda aynı aktivite
+#   kümesinden sayılmalı.
 def test_bei_payi_ve_paydasi_ayni_aktivite_kumesini_sayar():
     g = graph_of(
         task("T1", status="Completed", baseline_finish=date(2026, 10, 10),
@@ -126,11 +125,11 @@ def test_bei_payi_ve_paydasi_ayni_aktivite_kumesini_sayar():
     assert (r.measured_value, r.status) == (0.5, FAIL)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "HATA 3: Kontrol 11 ve BEI'de tür filtresi yok; LOE de sayılıyor. DCMA LOE ve "
-    "Summary'yi bütün kontrollerden çıkarır (6, 7, 8, 10'da Arda da çıkarıyor). "
-    "Milestone'ların sayılıp sayılmayacağı ayrıca takımca karar verilmeli; bu test "
-    "sadece LOE'ye bakıyor."))
+# Review hatası 3 (24 Kas) — Arda düzeltti (26 Kas, dacc5c6):
+#   Kontrol 11 ve BEI'de tür filtresi yok; LOE de sayılıyor. DCMA LOE ve
+#   Summary'yi bütün kontrollerden çıkarır (6, 7, 8, 10'da Arda da
+#   çıkarıyor). Karar (Arda, 26 Kas): LOE ve Summary sayılmaz, Milestone
+#   sayılır. Bu test sadece LOE'ye bakıyor.
 def test_kontrol11_ve_bei_loe_saymaz():
     g = graph_of(
         task("T1", status="Completed", baseline_finish=date(2026, 10, 10),
@@ -144,10 +143,10 @@ def test_kontrol11_ve_bei_loe_saymaz():
     assert bei.measured_value == 1.0
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "HATA 4: Veri tarihine kadar bitmesi gereken iş yoksa kontrol 11 'Pass' (%0) "
-    "veriyor, aynı durumda BEI 'Not Applicable'. Payda 0 iken oran tanımsız; diğer "
-    "bütün kontroller (1–10) gibi 'Not Applicable' olmalı."))
+# Review hatası 4 (24 Kas) — Arda düzeltti (26 Kas, dacc5c6):
+#   Veri tarihine kadar bitmesi gereken iş yoksa kontrol 11 'Pass' (%0)
+#   veriyor, aynı durumda BEI 'Not Applicable'. Payda 0 iken oran tanımsız;
+#   diğer bütün kontroller (1–10) gibi 'Not Applicable' olmalı.
 def test_kontrol11_vadesi_gelen_is_yoksa_not_applicable():
     g = graph_of(task("T1", baseline_finish=date(2026, 12, 5)))
     r = calculate_check_11_missed_activities(g)
@@ -157,8 +156,8 @@ def test_kontrol11_vadesi_gelen_is_yoksa_not_applicable():
 # --- SHACL ve SPARQL aynı öğeleri mi sayıyor? (kontrol 6–11) -----------------
 #
 # test_ratios.py'deki 1–5 testinin aynısı: Findings sayfasındaki bulgu sayısı
-# ile Summary'deki sayı tutmalı. Hatalar (yukarıdaki xfail'ler) iki tarafta da
-# aynı olduğu için bu test şu an geçiyor; düzeltme tek tarafta yapılırsa kırılır.
+# ile Summary'deki sayı tutmalı. Düzeltmeler (yukarıdaki 4 hata) iki tarafta da
+# yapıldığı için test geçiyor; bir düzeltme tek tarafta yapılırsa kırılır.
 
 def mixed_programme():
     """6, 7, 8, 9, 10, 11 için birer hata içeren program."""
