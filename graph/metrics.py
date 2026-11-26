@@ -164,6 +164,7 @@ def calculate_check_9_invalid_dates(
             ?act sched:status ?status ;
                  sched:start ?value .
             FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+            FILTER NOT EXISTS { ?act sched:actualStart ?as }
             BIND ("before" AS ?mode)
         }
         UNION
@@ -250,7 +251,9 @@ def calculate_check_11_missed_activities(
     SELECT (COUNT(?act) AS ?cnt)
     WHERE {
         ?act a sched:Activity ;
+             sched:activityType ?type ;
              sched:baselineFinish ?bf .
+        FILTER (LCASE(STR(?type)) NOT IN ("loe", "level of effort", "summary"))
     }
     """
     if _query_single_int(graph, baseline_presence_query) == 0:
@@ -261,7 +264,9 @@ def calculate_check_11_missed_activities(
     SELECT (COUNT(DISTINCT ?act) AS ?total)
     WHERE {
         ?act a sched:Activity ;
+             sched:activityType ?type ;
              sched:baselineFinish ?baselineFinish .
+        FILTER (LCASE(STR(?type)) NOT IN ("loe", "level of effort", "summary"))
         OPTIONAL { ?act sched:dataDate ?actDD }
         OPTIONAL {
             ?proj a sched:Project ;
@@ -277,8 +282,10 @@ def calculate_check_11_missed_activities(
     SELECT (COUNT(DISTINCT ?act) AS ?offending)
     WHERE {
         ?act a sched:Activity ;
+             sched:activityType ?type ;
              sched:baselineFinish ?baselineFinish ;
              sched:status ?status .
+        FILTER (LCASE(STR(?type)) NOT IN ("loe", "level of effort", "summary"))
         OPTIONAL { ?act sched:dataDate ?actDD }
         OPTIONAL {
             ?proj a sched:Project ;
@@ -299,7 +306,7 @@ def calculate_check_11_missed_activities(
     total_planned = _query_single_int(graph, total_planned_query)
     offending = _query_single_int(graph, offending_query)
     if total_planned == 0:
-        return CheckResult(11, "Missed Activities", 0.0, threshold_percent, PASS, 0, 0, "<=")
+        return CheckResult(11, "Missed Activities", None, threshold_percent, NOT_APPLICABLE, 0, 0, "<=")
     percent = offending * 100.0 / total_planned
     status = _decide(percent, threshold_percent, "<=")
     return CheckResult(11, "Missed Activities", percent, threshold_percent, status, offending, total_planned, "<=")
@@ -314,7 +321,9 @@ def calculate_check_14_bei(
     SELECT (COUNT(?act) AS ?cnt)
     WHERE {
         ?act a sched:Activity ;
+             sched:activityType ?type ;
              sched:baselineFinish ?bf .
+        FILTER (LCASE(STR(?type)) NOT IN ("loe", "level of effort", "summary"))
     }
     """
     if _query_single_int(graph, baseline_presence_query) == 0:
@@ -325,7 +334,9 @@ def calculate_check_14_bei(
     SELECT (COUNT(DISTINCT ?act) AS ?planned)
     WHERE {
         ?act a sched:Activity ;
+             sched:activityType ?type ;
              sched:baselineFinish ?baselineFinish .
+        FILTER (LCASE(STR(?type)) NOT IN ("loe", "level of effort", "summary"))
         OPTIONAL { ?act sched:dataDate ?actDD }
         OPTIONAL {
             ?proj a sched:Project ;
@@ -341,7 +352,9 @@ def calculate_check_14_bei(
     SELECT (COUNT(DISTINCT ?act) AS ?completed)
     WHERE {
         ?act a sched:Activity ;
+             sched:activityType ?type ;
              sched:status ?status .
+        FILTER (LCASE(STR(?type)) NOT IN ("loe", "level of effort", "summary"))
         FILTER (LCASE(STR(?status)) IN ("complete", "completed"))
     }
     """

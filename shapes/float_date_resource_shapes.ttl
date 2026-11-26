@@ -127,6 +127,7 @@ sched:Check9_InvalidDatesShape a sh:NodeShape ;
                     $this sched:status ?status ;
                           sched:start ?value .
                     FILTER (LCASE(STR(?status)) NOT IN ("complete", "completed"))
+                    FILTER NOT EXISTS { $this sched:actualStart ?as }
                     BIND ("before" AS ?mode)
                 }
                 UNION
@@ -172,8 +173,10 @@ sched:Check11_MissedActivityShape a sh:NodeShape ;
         sh:select """
             SELECT $this ?value
             WHERE {
-                $this sched:baselineFinish ?baselineFinish ;
+                $this sched:activityType ?type ;
+                      sched:baselineFinish ?baselineFinish ;
                       sched:status ?status .
+                FILTER (LCASE(STR(?type)) NOT IN ("loe", "level of effort", "summary"))
                 OPTIONAL { $this sched:dataDate ?actDD }
                 OPTIONAL {
                     ?proj a sched:Project ;
